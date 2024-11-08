@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hilton: The Main - Market Pantry Calculator</title>
+<style>
+/* General Styling */
+body {
+font-family: "Arial", sans-serif;
+margin: 0;
+padding: 0;
+background: #000; /* Black background */
+color: #fff;
+}
+
+h1 {
+text-align: center;
+margin: 20px 0;
+color: #f4c10f; /* Gold */
+font-size: 2.5em;
+text-shadow: 2px 2px 5px #333;
+}
+
+.header {
+background: #333;
+color: #f4c10f;
+padding: 10px;
+position: sticky;
+top: 0;
+z-index: 1000;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 2px solid #f4c10f;
+}
+
+.header .total-display {
+font-size: 1.2em;
+text-shadow: 1px 1px 3px #000;
+}
+
+.header button {
+background: #f4c10f;
+color: #000;
+border: none;
+padding: 10px 15px;
+font-size: 1em;
+border-radius: 5px;
+cursor: pointer;
+box-shadow: 2px 2px 5px #222;
+}
+
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.instructions {
+background: #333;
+padding: 15px;
+border-radius: 10px;
+text-align: center;
+color: #f4c10f;
+font-weight: bold;
+margin-bottom: 20px;
+}
+
+.search-bar {
+margin: 20px auto;
+text-align: center;
+}
+
+.search-bar input {
+width: 80%;
+padding: 10px;
+font-size: 1em;
+border: 2px solid #f4c10f;
+border-radius: 5px;
+background: #222;
+color: #fff;
+}
+
+.category {
+margin-top: 20px;
+background: #222;
+padding: 15px;
+border-radius: 10px;
+}
+
+.category h2 {
+margin-bottom: 15px;
+color: #f4c10f;
+font-size: 1.5em;
+text-shadow: 1px 1px 3px #000;
+cursor: pointer;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+margin-bottom: 20px;
+}
+
+table th, table td {
+border: 1px solid #444;
+padding: 8px;
+text-align: center;
+}
+
+table th {
+background: #444;
+color: #f4c10f;
+font-size: 1.2em;
+}
+
+table td {
+background: #555;
+color: #fff;
+}
+
+.copy-section {
+text-align: center;
+margin-top: 30px;
+}
+
+.copy-section button {
+background: #f4c10f;
+color: #000;
+border: none;
+padding: 10px 20px;
+font-size: 1em;
+border-radius: 5px;
+cursor: pointer;
+box-shadow: 2px 2px 5px #222;
+}
+
+.copy-section textarea {
+width: 80%;
+height: auto;
+min-height: 100px;
+max-height: 300px;
+overflow-y: auto;
+font-size: 1em;
+border: 2px solid #f4c10f;
+border-radius: 5px;
+padding: 10px;
+background: #222;
+color: #fff;
+resize: none;
+}
+
+.footer {
+text-align: center;
+margin-top: 50px;
+font-size: 1em;
+color: #f4c10f;
+}
+
+.hidden {
+display: none;
+}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="total-display">Total (Including Tax): $<span id="total">0.00</span></div>
+<button onclick="clearAll()">Clear All</button>
+</div>
+
+<h1>Hilton: The Main - Market Pantry Calculator</h1>
+
+<div class="container">
+<div class="instructions">
+Type the name of the item in the search bar or select from the categories below. Enter the quantity for each item, and the total will update automatically. Use the "Copy Description" button to generate a formatted summary for the system.
+</div>
+
+<div class="search-bar">
+<input type="text" id="search" placeholder="Search for an item..." oninput="searchItems()">
+</div>
+
+<div id="items">
+<!-- Dynamically populated items will go here -->
+</div>
+</div>
+
+<div class="copy-section">
+<button onclick="copyDescription()">Copy Description</button>
+<textarea id="description" readonly></textarea>
+</div>
+
+<div class="footer">
+Created by Ander Tillery
+</div>
+
+<script>
+const items = {
+"Medicine": [
+{ name: "Advil Pain", price: 5.00 },
+{ name: "Advil Pain Liquigel", price: 5.00 },
+{ name: "Advil PM", price: 5.00 },
+{ name: "Aleve", price: 5.00 },
+{ name: "Alka Seltzer", price: 5.00 },
+{ name: "Benadryl", price: 5.00 },
+{ name: "Claritin", price: 5.00 },
+{ name: "Clear Eyes Solution", price: 5.00 },
+{ name: "Dayquil Severe Cold & Flu", price: 5.00 },
+{ name: "Emergen-C Super Orange", price: 5.00 },
+{ name: "Excedrin Caplets", price: 4.00 },
+{ name: "Motrin", price: 4.00 },
+{ name: "Mucinex DM", price: 5.00 },
+{ name: "Nyquil Severe Cold & Flu", price: 5.00 },
+{ name: "Scope Mouthwash", price: 3.00 },
+{ name: "Tylenol Extra Strength", price: 5.00 },
+{ name: "Visine Eye Drops", price: 5.00 }
+],
+"Drinks": [
+{ name: "Coke Soda", price: 4.00 },
+{ name: "Cranberry Juice", price: 4.00 },
+{ name: "Diet Coke Soda", price: 4.00 },
+{ name: "Diet Dr. Pepper Soda", price: 4.00 },
+{ name: "Dr. Pepper Soda", price: 4.00 },
+{ name: "Energy Berry 5 Hour", price: 5.00 },
+{ name: "Gatorade Orange", price: 5.00 },
+{ name: "Gatorade Yellow", price: 5.00 },
+{ name: "Juice Apple", price: 4.00 },
+{ name: "Juice Orange", price: 4.00 },
+{ name: "Red Bull", price: 5.00 },
+{ name: "Red Bull Sugar-Free", price: 5.00 },
+{ name: "Smart Water 20oz", price: 4.00 },
+{ name: "Smart Water 32oz", price: 7.00 },
+{ name: "Sparkling Water", price: 4.00 },
+{ name: "Sprite Soda", price: 4.00 },
+{ name: "Vitamin Water", price: 4.00 },
+{ name: "Water Evian 1L", price: 7.00 },
+{ name: "Water Evian 20oz", price: 5.00 }
+],
+"Candy": [
+{ name: "Almond Joy", price: 4.00 },
+{ name: "Butterfinger", price: 5.00 },
+{ name: "Gum Arctic Chill", price: 4.00 },
+{ name: "Gum Peppermint", price: 4.00 },
+{ name: "Haribo Gold Bears", price: 5.00 },
+{ name: "Hershey Almond", price: 4.00 },
+{ name: "Hershey Milk Choc", price: 4.00 },
+{ name: "Kit Kat Bar", price: 5.00 },
+{ name: "M&Ms Milk Choc", price: 5.00 },
+{ name: "M&Ms Peanut", price: 5.00 },
+{ name: "Mints Peppermint", price: 5.00 },
+{ name: "Mints Spearmint", price: 5.00 },
+{ name: "Reese’s PB Cup Mini Bag", price: 5.00 },
+{ name: "Reese’s Peanut Butter Cup", price: 5.00 },
+{ name: "Skittles", price: 4.00 },
+{ name: "Snickers Mini Bag", price: 4.00 },
+{ name: "Swedish Fish", price: 5.00 },
+{ name: "Twix Caramel", price: 5.00 },
+{ name: "Twizzlers Strawberry", price: 5.00 }
+],
+"Snacks": [
+{ name: "Bagel Chips", price: 5.00 },
+{ name: "Bar Caramel Sea Salt", price: 4.00 },
+{ name: "Bar Chocolate Chip Clif", price: 4.00 },
+{ name: "Bar Granola Oat and Honey", price: 4.00 },
+{ name: "Bar Granola Peanut Butter", price: 4.00 },
+{ name: "Bar Oreo Cookies & Cream", price: 4.00 },
+{ name: "Bar Protein Brownie Batter", price: 4.00 },
+{ name: "Bar Protein Chocolate PB", price: 4.00 },
+{ name: "Bark Thins", price: 8.00 },
+{ name: "Brittle Caramel Brownie", price: 7.00 },
+{ name: "Brittle Chocolate Chip Brownie", price: 7.00 },
+{ name: "Chex Mix Muddy Buddies", price: 5.00 },
+{ name: "Chex Mix Traditional", price: 5.00 },
+{ name: "Chips Fritos", price: 4.00 },
+{ name: "Chips Lays BBQ", price: 4.00 },
+{ name: "Chocolate Chip Cookie", price: 3.00 },
+{ name: "Combos Cheddar Cheese", price: 5.00 },
+{ name: "Cookie Oreos", price: 4.00 },
+{ name: "Cheetos Crunchy", price: 4.00 },
+{ name: "Cheetos Flamin’ Hot", price: 4.00 },
+{ name: "Cracker Ritz Peanut Butter", price: 3.00 },
+{ name: "Doritos Cool Ranch", price: 4.00 },
+{ name: "Doritos Nacho Cheese", price: 4.00 },
+{ name: "Fruit Bowl", price: 4.00 },
+{ name: "Jerky Beef", price: 10.00 },
+{ name: "Peanuts Salty", price: 4.00 },
+{ name: "Popcorn Kettlecorn", price: 5.00 },
+{ name: "Popcorn White Cheddar", price: 5.00 },
+{ name: "Pretzel Thins", price: 5.00 },
+{ name: "Pringles Salt & Vinegar", price: 5.00 },
+{ name: "Ruffles Sour Cream Cheddar", price: 4.00 },
+{ name: "Sunchips Harvest Cheddar", price: 5.00 },
+{ name: "Trail Mix Nut & Choc", price: 5.00 }
+],
+"Miscellaneous": [
+{ name: "Always Ultra Regular Thin", price: 7.00 },
+{ name: "Hairspray Berry", price: 7.00 },
+{ name: "Hairspray Tresseme Pump", price: 6.00 },
+{ name: "Lightning Cable for Apple", price: 20.00 }
+]
+};
+
+const TAX_RATE = 0.075; // 7.5% tax
+
+function populateItems() {
+const container = document.getElementById("items");
+Object.keys(items).forEach(category => {
+const categoryDiv = document.createElement("div");
+categoryDiv.classList.add("category");
+
+// Collapsible category header
+const header = document.createElement("h2");
+header.textContent = category;
+header.onclick = () => {
+const table = header.nextElementSibling;
+table.classList.toggle("hidden");
+};
+categoryDiv.appendChild(header);
+
+// Category table
+const table = document.createElement("table");
+const headerRow = document.createElement("tr");
+headerRow.innerHTML = "<th>Item</th><th>Price</th><th>Quantity</th>"
+table.appendChild(headerRow);
+
+items[category].forEach(item => {
+const row = document.createElement("tr");
+row.innerHTML = `
+<td>${item.name}</td>
+<td>$${item.price.toFixed(2)}</td>
+<td><input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateTotal()"></td>
+`;
+table.appendChild(row);
+});
+
+categoryDiv.appendChild(table);
+container.appendChild(categoryDiv);
+});
+}
+
+function updateTotal() {
+const inputs = document.querySelectorAll("input[type='number']");
+let total = 0;
+const description = [];
+
+inputs.forEach(input => {
+const quantity = parseInt(input.value, 10);
+if (quantity > 0) {
+const price = parseFloat(input.dataset.price);
+const itemName = input.dataset.name;
+total += price * quantity;
+description.push(`${quantity} ${itemName}`);
+}
+});
+
+const totalWithTax = total + total * TAX_RATE;
+document.getElementById("total").textContent = totalWithTax.toFixed(2);
+document.getElementById("description").value = description.join(", ");
+}
+
+function clearAll() {
+const inputs = document.querySelectorAll("input[type='number']");
+inputs.forEach(input => input.value = 0);
+updateTotal();
+}
+
+function copyDescription() {
+const description = document.getElementById("description");
+description.select();
+document.execCommand("copy");
+}
+
+function searchItems() {
+const query = document.getElementById("search").value.toLowerCase();
+const categories = document.querySelectorAll(".category");
+
+categories.forEach(category => {
+let hasMatch = false;
+const rows = category.querySelectorAll("table tr");
+rows.forEach((row, index) => {
+if (index === 0) return; // Skip header row
+const itemName = row.children[0].textContent.toLowerCase();
+if (itemName.includes(query)) {
+row.style.display = ""
+hasMatch = true;
+} else {
+row.style.display = "none"
+}
+});
+
+// Hide or show the category based on matches
+category.style.display = hasMatch ? "" : "none"
+});
+}
+
+// Initialize the page
+populateItems();
+</script>
+</body>
+</html>
